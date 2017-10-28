@@ -34,7 +34,7 @@ class CentrifugeClientImplTests: XCTestCase {
         client.url = url
         
         // when
-        client.connect { _ in }
+        client.connect { _,_  in }
         
         // then
         XCTAssertNotNil(client.ws.delegate)
@@ -53,7 +53,7 @@ class CentrifugeClientImplTests: XCTestCase {
         
         let message = CentrifugeClientMessage.testMessage()
         
-        builder.buildPingHandler = { _ in return message }
+        builder.buildPingHandler = {  return message }
         
         ws.sendHandler = { aMessage in
             validMessageDidSend = (aMessage == message)
@@ -76,7 +76,7 @@ class CentrifugeClientImplTests: XCTestCase {
         ws.delegate = client
         ws.closeHandler = {
             closeDidCall = true
-        }
+        } as (() -> Void)
         
         // when
         client.disconnect()
@@ -245,7 +245,7 @@ class CentrifugeClientImplTests: XCTestCase {
         
         let message = CentrifugeClientMessage.testMessage()
         
-        builder.buildPublishHandler = { _ in return message }
+        builder.buildPublishHandler = { _,_  in return message }
         
         ws.sendHandler = { aMessage in
             validMessageDidSend = (aMessage == message)
@@ -350,7 +350,7 @@ class CentrifugeClientImplTests: XCTestCase {
         
         ws.closeHandler = {
             closeDidCall = true
-        }
+        } as (() -> Void)
         // when
         client.defaultProcessHandler(messages: [message], error: nil)
         
@@ -474,8 +474,7 @@ class CentrifugeClientImplTests: XCTestCase {
         // given
         let error = NSError(domain: "", code: 1, userInfo: nil)
 
-        client.connectionCompletion = { _ in
-        }
+        client.connectionCompletion = { _, _  in}
         client.blockingHandler = client.connectionProcessHandler
         
         // when
@@ -684,7 +683,7 @@ class CentrifugeClientImplTests: XCTestCase {
     //MARK: - Helpers
     class WebSocketMock: CentrifugeWebSocket {
         var openHandler: ((String) -> Void)?
-        var closeHandler: ((Void) -> Void)?
+        var closeHandler: (() -> Void)?
         var sendHandler: ((CentrifugeClientMessage) -> Void)?
         
         override func open(_ url: String) {
@@ -706,12 +705,12 @@ class CentrifugeClientImplTests: XCTestCase {
             return buildConnectHandler(credentials)
         }
         
-        var buildPingHandler: ( (Void) -> CentrifugeClientMessage )!
+        var buildPingHandler: ( () -> CentrifugeClientMessage )!
         override func buildPingMessage() -> CentrifugeClientMessage {
             return buildPingHandler()
         }
         
-        var buildDisconnectHandler: ( (Void) -> CentrifugeClientMessage )!
+        var buildDisconnectHandler: ( () -> CentrifugeClientMessage )!
         override func buildDisconnectMessage() -> CentrifugeClientMessage {
             return buildDisconnectHandler()
         }

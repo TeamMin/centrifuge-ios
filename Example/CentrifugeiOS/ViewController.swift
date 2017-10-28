@@ -51,7 +51,7 @@ class ViewController: UIViewController, CentrifugeChannelDelegate, CentrifugeCli
 
     func publish(_ text: String) {
         client.publish(toChannel: channel, data:  ["nick" : nickName, "input" : text]) { message, error in
-            print("publish message: \(message)")
+            print("publish message: \(String(describing: message))")
         }
     }
     
